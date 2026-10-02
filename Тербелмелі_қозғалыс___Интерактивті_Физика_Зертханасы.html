@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="kk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тербелмелі Қозғалыс — 9-сынып Интерактивті Физика Зертханасы</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        },
+                        pendulum: {
+                            light: '#818cf8',
+                            DEFAULT: '#6366f1',
+                            dark: '#4f46e5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        input[type=range] {
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #e2e8f0;
+            border-radius: 5px;
+            outline: none;
+        }
+        .dark input[type=range] {
+            background: #334155;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+            transition: all 0.15s ease-in-out;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(51, 65, 85, 0.6);
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200">
+
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-wave-square text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Тербелмелі Қозғалыс
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+                        9-сынып • Физика Виртуалды Зертханасы
+                    </p>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <nav class="hidden md:flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/60 p-1 rounded-xl text-sm font-medium">
+                <button onclick="switchTab('sim')" id="tab-btn-sim" class="tab-btn active-tab px-3.5 py-1.5 rounded-lg transition duration-200 bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                    <i class="fa-solid fa-sliders mr-1.5"></i>Модельдеу
+                </button>
+                <button onclick="switchTab('presets')" id="tab-btn-presets" class="tab-btn px-3.5 py-1.5 rounded-lg transition duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                    <i class="fa-solid fa-globe mr-1.5"></i>Жүйелер & Планеталар
+                </button>
+                <button onclick="switchTab('graph')" id="tab-btn-graph" class="tab-btn px-3.5 py-1.5 rounded-lg transition duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i>Графиктер
+                </button>
+                <button onclick="switchTab('tasks')" id="tab-btn-tasks" class="tab-btn px-3.5 py-1.5 rounded-lg transition duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                    <i class="fa-solid fa-brain mr-1.5"></i>Тапсырмалар (5 Есеп)
+                </button>
+                <button onclick="switchTab('theory')" id="tab-btn-theory" class="tab-btn px-3.5 py-1.5 rounded-lg transition duration-200 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white">
+                    <i class="fa-solid fa-book-open mr-1.5"></i>Теория
+                </button>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                    <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="md:hidden flex overflow-x-auto px-3 py-2 border-t border-slate-200 dark:border-slate-800 space-x-2 text-xs font-semibold">
+            <button onclick="switchTab('sim')" id="mob-tab-sim" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white whitespace-nowrap">Модельдеу</button>
+            <button onclick="switchTab('presets')" id="mob-tab-presets" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 whitespace-nowrap">Жүйелер</button>
+            <button onclick="switchTab('graph')" id="mob-tab-graph" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 whitespace-nowrap">Графиктер</button>
+            <button onclick="switchTab('tasks')" id="mob-tab-tasks" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 whitespace-nowrap">Тапсырмалар</button>
+            <button onclick="switchTab('theory')" id="mob-tab-theory" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 whitespace-nowrap">Теория</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <div id="section-sim" class="tab-section block">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                <div class="lg:col-span-5 space-y-5">
+                    
+                    <div class="glass-panel rounded-2xl p-4 shadow-sm">
+                        <label class="text-xs uppercase tracking-wider font-bold text-slate-400 block mb-2">Тербелмелі жүйе түрі</label>
+                        <div class="grid grid-cols-2 gap-2 font-semibold text-xs">
+                            <button id="mode-math-btn" onclick="setPendulumType('math')" class="p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center space-x-2 transition">
+                                <i class="fa-solid fa-circle-notch text-base"></i>
+                                <span>Математикалық</span>
+                            </button>
+                            <button id="mode-spring-btn" onclick="setPendulumType('spring')" class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 flex items-center justify-center space-x-2 transition">
+                                <i class="fa-solid fa-arrows-up-down text-base"></i>
+                                <span>Серіппелі</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                            <h2 class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center">
+                                <i class="fa-solid fa-sliders text-indigo-500 mr-2"></i>Параметрлерді басқару
+                            </h2>
+                            <button onclick="resetSimulation()" class="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                                <i class="fa-solid fa-rotate-left mr-1"></i>Бастапқы күй
+                            </button>
+                        </div>
+
+                        <div id="param-l-container">
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label for="input-l" class="text-slate-600 dark:text-slate-300">Жіп ұзындығы (L):</label>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold" id="val-l">1.00 м</span>
+                            </div>
+                            <input id="input-l" type="range" min="0.2" max="3.0" step="0.05" value="1.0" class="w-full" oninput="updateControls()">
+                        </div>
+
+                        <div id="param-k-container" class="hidden">
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label for="input-k" class="text-slate-600 dark:text-slate-300">Серіппе қатаңдығы (k):</label>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold" id="val-k">20.0 Н/м</span>
+                            </div>
+                            <input id="input-k" type="range" min="5" max="100" step="1" value="20" class="w-full" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label for="input-m" class="text-slate-600 dark:text-slate-300">Жүк массасы (m):</label>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold" id="val-m">0.50 кг</span>
+                            </div>
+                            <input id="input-m" type="range" min="0.1" max="5.0" step="0.05" value="0.5" class="w-full" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label id="label-amplitude" for="input-amp" class="text-slate-600 dark:text-slate-300">Бастапқы ауытқу (θ₀):</label>
+                                <span class="text-indigo-600 dark:text-indigo-400 font-mono font-bold" id="val-amp">30°</span>
+                            </div>
+                            <input id="input-amp" type="range" min="5" max="80" step="1" value="30" class="w-full" oninput="updateControls()">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label for="select-g" class="text-slate-600 dark:text-slate-300">Еркін түсу үдеуі (g):</label>
+                                <span class="text-cyan-600 dark:text-cyan-400 font-mono font-bold" id="val-g">9.81 м/с²</span>
+                            </div>
+                            <select id="select-g" onchange="changeGravityPreset()" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <option value="9.81">Жер (g = 9.81 м/с²)</option>
+                                <option value="1.62">Ай (g = 1.62 м/с²)</option>
+                                <option value="3.71">Марс (g = 3.71 м/с²)</option>
+                                <option value="24.79">Юпитер (g = 24.79 м/с²)</option>
+                                <option value="0.00">Салмақсыздық (g = 0 м/с²)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1 text-xs font-semibold">
+                                <label for="input-damping" class="text-slate-600 dark:text-slate-300">Өшу (Кедергі күші):</label>
+                                <span class="text-amber-600 dark:text-amber-400 font-mono font-bold" id="val-damping">0.05</span>
+                            </div>
+                            <input id="input-damping" type="range" min="0" max="0.5" step="0.01" value="0.05" class="w-full" oninput="updateControls()">
+                        </div>
+
+                        <div class="pt-2 flex items-center space-x-2">
+                            <button id="btn-play" onclick="togglePlay()" class="flex-1 py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-500/20 transition flex items-center justify-center space-x-2">
+                                <i id="icon-play" class="fa-solid fa-pause"></i>
+                                <span id="text-play">Тоқтату</span>
+                            </button>
+                            <button onclick="triggerImpulse()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center space-x-1">
+                                <i class="fa-solid fa-hand-pointer"></i>
+                                <span>Итеру (Екпін)</span>
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div id="formula-card" class="glass-panel rounded-2xl p-4 shadow-sm border-l-4 border-indigo-500">
+                        <div class="text-[11px] text-slate-400 font-semibold uppercase">Негізгі период формуласы (Томсон формуласы)</div>
+                        <div id="formula-text" class="text-lg font-bold font-mono text-indigo-600 dark:text-indigo-400 mt-1">
+                            T = 2π √(L / g)
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="lg:col-span-7 space-y-5">
+                    
+                    <div class="glass-panel rounded-2xl p-5 shadow-sm flex flex-col items-center relative overflow-hidden">
+                        <div class="w-full flex justify-between items-center mb-2 z-10">
+                            <h3 class="font-bold text-sm text-slate-700 dark:text-slate-300 flex items-center">
+                                <i class="fa-solid fa-display text-indigo-500 mr-2"></i>Интерактивті Симулятор Визуалдау
+                            </h3>
+                            <div class="flex items-center space-x-2 text-xs">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-medium">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 mr-1.5 animate-pulse"></span>
+                                    Physics Engine 2D
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-[380px] relative rounded-xl bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 border border-slate-300 dark:border-slate-800 overflow-hidden">
+                            <canvas id="simCanvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+                        </div>
+
+                        <div class="w-full mt-4 space-y-2 text-xs font-semibold">
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span>Энергия тепе-теңдігі (E<sub>толық</sub> = E<sub>к</sub> + E<sub>п</sub>)</span>
+                                <span id="val-etot" class="font-mono text-indigo-600 font-bold">0.000 Ж</span>
+                            </div>
+                            
+                            <div class="space-y-1.5">
+                                <div class="flex items-center text-[11px]">
+                                    <span class="w-24 text-rose-500 font-bold">Кинетикалық (E<sub>к</sub>):</span>
+                                    <div class="flex-grow bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden mr-2">
+                                        <div id="bar-ek" class="bg-rose-500 h-full transition-all duration-75" style="width: 50%;"></div>
+                                    </div>
+                                    <span id="val-ek" class="w-16 text-right font-mono text-slate-600 dark:text-slate-300">0.00 Ж</span>
+                                </div>
+                                <div class="flex items-center text-[11px]">
+                                    <span class="w-24 text-emerald-500 font-bold">Потенциалдық (E<sub>п</sub>):</span>
+                                    <div class="flex-grow bg-slate-200 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden mr-2">
+                                        <div id="bar-ep" class="bg-emerald-500 h-full transition-all duration-75" style="width: 50%;"></div>
+                                    </div>
+                                    <span id="val-ep" class="w-16 text-right font-mono text-slate-600 dark:text-slate-300">0.00 Ж</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        
+                        <div class="glass-panel p-3.5 rounded-xl border-t-2 border-indigo-500">
+                            <span class="text-[11px] font-semibold text-slate-400 block uppercase">Период (T)</span>
+                            <span id="out-period" class="text-lg sm:text-xl font-mono font-extrabold text-indigo-600 dark:text-indigo-400">2.01 с</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Толық 1 тербеліс уақыты</span>
+                        </div>
+
+                        <div class="glass-panel p-3.5 rounded-xl border-t-2 border-cyan-500">
+                            <span class="text-[11px] font-semibold text-slate-400 block uppercase">Жиілік (ν немесе f)</span>
+                            <span id="out-freq" class="text-lg sm:text-xl font-mono font-extrabold text-cyan-600 dark:text-cyan-400">0.50 Гц</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">1 секундтағы тербеліс</span>
+                        </div>
+
+                        <div class="glass-panel p-3.5 rounded-xl border-t-2 border-purple-500">
+                            <span class="text-[11px] font-semibold text-slate-400 block uppercase">Циклдік жиілік (ω)</span>
+                            <span id="out-omega" class="text-lg sm:text-xl font-mono font-extrabold text-purple-600 dark:text-purple-400">3.13 рад/с</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">2π секундтағы тербеліс</span>
+                        </div>
+
+                        <div class="glass-panel p-3.5 rounded-xl border-t-2 border-emerald-500">
+                            <span class="text-[11px] font-semibold text-slate-400 block uppercase">Макс. жылдамдық</span>
+                            <span id="out-vmax" class="text-lg sm:text-xl font-mono font-extrabold text-emerald-600 dark:text-emerald-400">1.25 м/с</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">Тепе-теңдік қалыпта</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div id="section-presets" class="tab-section hidden">
+            <div class="glass-panel rounded-2xl p-6 shadow-sm space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center">
+                        <i class="fa-solid fa-globe text-indigo-500 mr-2.5"></i>Планеталар мен Әртүрлі Жүйелердегі Тербеліс
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Кез келген дайын жүйені бір шерту арқылы модельге жүктеп, тербелістің гравитация мен массаға тәуелділігін салыстырыңыз.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-600 font-bold text-xs">Математикалық</span>
+                                <span class="text-xs text-slate-400 font-mono">g = 9.81 м/с²</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Секундтық Маятник (Жер)</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Ұзындығы L ≈ 0.994 м маятниктің Жердегі периоды тура <b>2.00 секунд</b> болады (1 секунд оңға, 1 секунд солға).
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('seconds_earth')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-cyan-100 dark:bg-cyan-950 text-cyan-600 font-bold text-xs">Ай Гравитациясы</span>
+                                <span class="text-xs text-slate-400 font-mono">g = 1.62 м/с²</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Айдағы Жіпті Маятник</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Айда тартылыс күші 6 есе әлсіз болғандықтан, тербеліс баяулайды (T ≈ 4.93 с).
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('moon_pendulum')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950 text-purple-600 font-bold text-xs">Юпитер</span>
+                                <span class="text-xs text-slate-400 font-mono">g = 24.79 м/с²</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Юпитердегі Жылдам Маятник</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Жоғары ауырлық күшінде маятник қайта орнына тез ұмтылады, период шамамен 2.5 есе қысқарады (T ≈ 1.26 с).
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('jupiter_pendulum')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-600 font-bold text-xs">Серіппелі</span>
+                                <span class="text-xs text-slate-400 font-mono">k = 10 Н/м</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Жұмсақ Серіппе Жүйесі</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Серіппе қатаңдығы төмен және жүк массасы m = 1.0 кг болғанда, маятник үлкен амплитудамен баяу тербеледі.
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('soft_spring')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-600 font-bold text-xs">Серіппелі</span>
+                                <span class="text-xs text-slate-400 font-mono">k = 80 Н/м</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Қатты Серіппе (Амортизатор)</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Үлкен қатаңдық серпімділік күшін жылдам тудырып, жоғары жиілікті (f > 2 Гц) тербеліс береді.
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('stiff_spring')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:border-indigo-500 transition space-y-3 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-600 font-bold text-xs">Ғарыш / ҒКК</span>
+                                <span class="text-xs text-slate-400 font-mono">g = 0.00 м/с²</span>
+                            </div>
+                            <h3 class="font-extrabold text-base text-slate-800 dark:text-slate-200 mt-2">Ғарыштағы Тербеліс</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                Салмақсыздықта математикалық маятник жұмыс істемейді, бірақ <b>серіппелі маятник периодты өзгертпей жұмыс істей береді!</b>
+                            </p>
+                        </div>
+                        <button onclick="applyPresetSystem('space_spring')" class="w-full py-2 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold text-xs rounded-xl hover:bg-indigo-100 transition">
+                            Қолдану & Симуляциялау
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="section-graph" class="tab-section hidden">
+            <div class="glass-panel rounded-2xl p-6 shadow-sm space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 gap-2">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center">
+                            <i class="fa-solid fa-chart-line text-indigo-500 mr-2.5"></i>Гармоникалық Тербелістердің Синусоида Графиктері
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+                            Ығысу x(t), жылдамдық v(t) және үдеу а(t) параметрлерінің уақытқа тәуелділік графигі.
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="clearGraphHistory()" class="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                            <i class="fa-solid fa-eraser mr-1"></i>Тазалау
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-2 h-[380px] relative rounded-xl bg-slate-900 border border-slate-800 p-3">
+                        <canvas id="graphCanvas" class="w-full h-full block"></canvas>
+                    </div>
+
+                    <div class="space-y-4 flex flex-col justify-between">
+                        <div class="p-4 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 space-y-2">
+                            <h4 class="font-bold text-sm text-indigo-900 dark:text-indigo-200 flex items-center">
+                                <i class="fa-solid fa-circle-info mr-2"></i>Фазалық ығысу ережесі:
+                            </h4>
+                            <p class="text-xs text-indigo-800 dark:text-indigo-300 leading-relaxed">
+                                • <b>Ығысу x(t)</b> максималды болғанда, <b>Жылдамдық v(t)</b> 0-ге тең болады.<br>
+                                • <b>Үдеу a(t)</b> әрқашан ығысуға қарама-қарсы бағытталған (a = -ω²x).
+                            </p>
+                        </div>
+
+                        <div class="space-y-2 text-xs font-semibold">
+                            <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between">
+                                <span class="text-slate-500">Ағымдағы ығысу (x):</span>
+                                <span id="graph-val-x" class="font-mono text-indigo-600 font-bold">0.00 м</span>
+                            </div>
+                            <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between">
+                                <span class="text-slate-500">Ағымдағы жылдамдық (v):</span>
+                                <span id="graph-val-v" class="font-mono text-emerald-600 font-bold">0.00 м/с</span>
+                            </div>
+                            <div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800 flex justify-between">
+                                <span class="text-slate-500">Ағымдағы үдеу (a):</span>
+                                <span id="graph-val-a" class="font-mono text-rose-600 font-bold">0.00 м/с²</span>
+                            </div>
+                        </div>
+
+                        <button onclick="switchTab('sim')" class="w-full py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-700 transition">
+                            <i class="fa-solid fa-sliders mr-1.5"></i>Модельдеу режиміне өту
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="section-tasks" class="tab-section hidden">
+            <div class="glass-panel rounded-2xl p-6 shadow-sm space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-1 rounded-md bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 font-extrabold text-xs">9-СЫНЫП ОЛИМПИАДА / КЕЙС</span>
+                        <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+                            Практикалық Тапсырмалар: 5 Стандартты Емес Есеп
+                        </h2>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        Бұл бөлімде формуланы жайдан-жай қоя салу емес, терең физикалық мағынаны, контекстті және логиканы талап ететін есептер жинақталған.
+                    </p>
+                </div>
+
+                <div class="space-y-6">
+                    
+                    <!-- Task 1 -->
+                    <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold text-xs">1-Есеп: Космостық маятникті сағат</span>
+                            <span class="text-xs text-slate-400 font-mono">g_Жер = 9.81 м/с², g_Ай = 1.62 м/с²</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                            Жерде маятникті сағаттың периоды T₁ = 2.0 с болып тура дәл жүреді. Астронавттар осы сағатты Айға (g_Ай = 1.62 м/с²) алып келді. Жердің <b>1 сағаты (60 минут)</b> өткенде, Айда тұрған бұл сағат циферблаты қанша минутты көрсетеді? (Жауапты минутпен дөңгелектеп жазыңыз).
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                            <input id="task1-input" type="number" step="0.1" placeholder="Мысалы: 24.3" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="checkTask1()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">Тексеру</button>
+                        </div>
+                        <div id="task1-feedback" class="hidden text-xs font-semibold p-3.5 rounded-xl"></div>
+                    </div>
+
+                    <!-- Task 2 -->
+                    <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold text-xs">2-Есеп: Жеделдетілген лифттегі маятник</span>
+                            <span class="text-xs text-slate-400 font-mono">L = 1.0 м, a = 2.19 м/с², g = 9.81 м/с²</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                            Ұзындығы L = 1.0 м математикалық маятник лифт ішіне ілінген. Лифт жоғары қарай a = 2.19 м/с² тұрақты үдеумен көтеріле бастады. Лифт ішіндегі маятниктің тербеліс периоды (T_эфф) неше секундқа тең болады? (Жауапты жүздік үлеске дейін дөңгелектеңіз).
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                            <input id="task2-input" type="number" step="0.01" placeholder="Мысалы: 1.81" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="checkTask2()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">Тексеру</button>
+                        </div>
+                        <div id="task2-feedback" class="hidden text-xs font-semibold p-3.5 rounded-xl"></div>
+                    </div>
+
+                    <!-- Task 3 -->
+                    <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold text-xs">3-Есеп: Резонанс және көпірдің қауіпсіздігі</span>
+                            <span class="text-xs text-slate-400 font-mono">L = 2.5 м, g = 9.81 м/с²</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                            Үлкен аспалы көпірдің меншікті тербеліс периоды ұзындығы L = 2.5 м математикалық маятниктің периодына сәйкес келеді. Сол көпір үстінен әскери рота саппен өтіп бара жатыр. Қауіпті <b>РЕЗОНАНС</b> құбылысы орын алмас үшін әскер сабының адымдау жиілігі (f) қандай мәннен алшақ болуы тиіс?
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                            <input id="task3-input" type="number" step="0.01" placeholder="Мысалы: 0.32" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="checkTask3()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">Тексеру</button>
+                        </div>
+                        <div id="task3-feedback" class="hidden text-xs font-semibold p-3.5 rounded-xl"></div>
+                    </div>
+
+                    <!-- Task 4 -->
+                    <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold text-xs">4-Есеп: Энергия тепе-теңдік сәтіндегі жылдамдық</span>
+                            <span class="text-xs text-slate-400 font-mono">A = 0.20 м, f = 5.0 Гц</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                            Гармоникалық тербеліс жасайтын жүк амплитудасы A = 0.20 м және жиілігі f = 5.0 Гц. Кинетикалық энергия Потенциалдық энергияға дәл тең болған (Eₖ = Eₚ) сәттегі дененің жылдамдығын (v) табыңыз. (м/с есебімен жүздікке дейін).
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                            <input id="task4-input" type="number" step="0.01" placeholder="Мысалы: 4.44" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="checkTask4()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">Тексеру</button>
+                        </div>
+                        <div id="task4-feedback" class="hidden text-xs font-semibold p-3.5 rounded-xl"></div>
+                    </div>
+
+                    <!-- Task 5 -->
+                    <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="px-2.5 py-1 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-bold text-xs">5-Есеп: Фазалардың қайта беттесуі</span>
+                            <span class="text-xs text-slate-400 font-mono">L₁ = 1.00 м, L₂ = 0.25 м</span>
+                        </div>
+                        <p class="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
+                            Ұзындықтары L₁ = 1.00 м және L₂ = 0.25 м болатын екі математикалық маятник бір мезетте бір тарапқа қарай ауытқытылып босатылды. Ұзын маятник (L₁) <b>қанша толық тербеліс</b> жасаған кезде екі маятник алғаш рет қайтадан бастапқыдай бірдей фазаға келеді?
+                        </p>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2">
+                            <input id="task5-input" type="number" step="1" placeholder="Мысалы: 1" class="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 dark:bg-slate-800 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <button onclick="checkTask5()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition">Тексеру</button>
+                        </div>
+                        <div id="task5-feedback" class="hidden text-xs font-semibold p-3.5 rounded-xl"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="section-theory" class="tab-section hidden">
+            <div class="glass-panel rounded-2xl p-6 shadow-sm space-y-6">
+                
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-4">
+                    <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center">
+                        <i class="fa-solid fa-book-open text-indigo-500 mr-2.5"></i>Тербелмелі Қозғалыс Теориясы
+                    </h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                        9-сынып Физика курсы: Гармоникалық тербелістер, период, жиілік, энергия түрленуі және резонанс.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div class="p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900 space-y-3">
+                        <h3 class="font-extrabold text-base text-indigo-950 dark:text-indigo-200 flex items-center">
+                            <i class="fa-solid fa-square-root-variable text-indigo-600 mr-2"></i>Негізгі Сипаттамалар
+                        </h3>
+                        <ul class="text-xs text-indigo-900 dark:text-indigo-300 space-y-2 leading-relaxed">
+                            <li>• <b>Период (T):</b> Толық бір тербеліс жасауға кеткен уақыт: T = t / N (секунд, с).</li>
+                            <li>• <b>Жиілік (ν немесе f):</b> 1 секундтағы тербелістер саны: f = N / t = 1 / T (Герц, Гц).</li>
+                            <li>• <b>Циклдік жиілік (ω):</b> 2π секундтағы тербелістер саны: ω = 2πf = 2π / T (рад/с).</li>
+                            <li>• <b>Амплитуда (A немесе x<sub>m</sub>):</b> Дененің тепе-теңдік қалыптан ең үлкен ығысуы (метр, м).</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-5 rounded-2xl bg-purple-50/70 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900 space-y-3">
+                        <h3 class="font-extrabold text-base text-purple-950 dark:text-purple-200 flex items-center">
+                            <i class="fa-solid fa-atom text-purple-600 mr-2"></i>Маятниктердің Меншікті Периоды
+                        </h3>
+                        <div class="space-y-2 text-xs text-purple-900 dark:text-purple-300">
+                            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-xl font-mono text-center text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                                Математикалық: T = 2π √(L / g)
+                            </div>
+                            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-xl font-mono text-center text-sm font-bold text-purple-600 dark:text-purple-400">
+                                Серіппелі: T = 2π √(m / k)
+                            </div>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                                *Математикалық маятник периоды жүк массасына тәуелсіз, ал серіппелі маятник периоды гравитацияға (g) тәуелсіз!
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="space-y-3 pt-2">
+                    <h3 class="font-bold text-base text-slate-800 dark:text-slate-200">
+                        ⚡ Еріксіз Тербелістер және Резонанс Құбылысы:
+                    </h3>
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                        <p>
+                            <b>Резонанс</b> — мәжбүрлеуші сыртқы күштің жиілігі тербелмелі жүйенің меншікті жиілігіне (f = f₀) сәйкес келген кезде <b>тербеліс амплитудасының кенеттен күрт арту құбылысы</b>.
+                        </p>
+                        <p class="text-amber-600 dark:text-amber-400 font-semibold">
+                            ⚠️ Тәжірибелік маңызы: Көпірлер салу, ғимараттарды жер сілкінісінен қорғау, музыкалық аспаптардың резонаторлары.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-auto border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-6 text-center text-xs text-slate-500 dark:text-slate-400">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+                🌊 <b>Тербелмелі Қозғалыс — Интерактивті Зертхана</b> | 9-сынып Физика
+            </div>
+            <div>
+                Интерактивті модельдеу және есептер жинағы
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const state = {
+            mode: 'math',      
+            L: 1.0,            
+            k: 20.0,           
+            m: 0.5,            
+            ampDeg: 30,        
+            g: 9.81,           
+            damping: 0.05,     
+            isPlaying: true,
+
+            theta: (30 * Math.PI) / 180, 
+            omega: 0,                   
+
+            x: 0.3,            
+            v: 0,              
+
+            dt: 0.016,         
+            time: 0,
+
+            graphData: []
+        };
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        window.addEventListener('load', () => {
+            initCanvas();
+            initGraphCanvas();
+            syncControlsFromState();
+            calculateMetrics();
+            
+            requestAnimationFrame(simLoop);
+
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+                resizeGraphCanvas();
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.add('hidden'));
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'dark:bg-slate-700', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+                btn.classList.add('text-slate-600', 'dark:text-slate-300');
+            });
+
+            const targetSection = $('section-' + tabId);
+            if (targetSection) targetSection.classList.remove('hidden');
+
+            const activeBtn = $('tab-btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white', 'dark:bg-slate-700', 'text-indigo-600', 'dark:text-indigo-400', 'shadow-sm');
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-300');
+            }
+
+            if (tabId === 'sim') {
+                resizeCanvas();
+            } else if (tabId === 'graph') {
+                resizeGraphCanvas();
+                drawGraph();
+            }
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = $('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-amber-400';
+            }
+        }
+
+        function setPendulumType(type) {
+            state.mode = type;
+            const mathBtn = $('mode-math-btn');
+            const springBtn = $('mode-spring-btn');
+
+            if (type === 'math') {
+                mathBtn.className = "p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center space-x-2 transition font-semibold";
+                springBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 flex items-center justify-center space-x-2 transition font-semibold";
+                $('param-l-container').classList.remove('hidden');
+                $('param-k-container').classList.add('hidden');
+                $('label-amplitude').textContent = "Бастапқы бұрыш (θ₀):";
+                $('val-amp').textContent = state.ampDeg + "°";
+                $('formula-text').textContent = "T = 2π √(L / g)";
+            } else {
+                springBtn.className = "p-3 rounded-xl border-2 border-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center space-x-2 transition font-semibold";
+                mathBtn.className = "p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 flex items-center justify-center space-x-2 transition font-semibold";
+                $('param-l-container').classList.add('hidden');
+                $('param-k-container').classList.remove('hidden');
+                $('label-amplitude').textContent = "Бастапқы ығысу (x₀):";
+                $('val-amp').textContent = (state.ampDeg / 100).toFixed(2) + " м";
+                $('formula-text').textContent = "T = 2π √(m / k)";
+            }
+
+            resetSimulation();
+        }
+
+        function updateControls() {
+            state.L = parseFloat($('input-l').value);
+            state.k = parseFloat($('input-k').value);
+            state.m = parseFloat($('input-m').value);
+            state.ampDeg = parseFloat($('input-amp').value);
+            state.damping = parseFloat($('input-damping').value);
+
+            $('val-l').textContent = state.L.toFixed(2) + " м";
+            $('val-k').textContent = state.k.toFixed(1) + " Н/м";
+            $('val-m').textContent = state.m.toFixed(2) + " кг";
+            $('val-damping').textContent = state.damping.toFixed(2);
+
+            if (state.mode === 'math') {
+                $('val-amp').textContent = state.ampDeg + "°";
+            } else {
+                $('val-amp').textContent = (state.ampDeg / 100).toFixed(2) + " м";
+            }
+
+            calculateMetrics();
+        }
+
+        function changeGravityPreset() {
+            state.g = parseFloat($('select-g').value);
+            $('val-g').textContent = state.g.toFixed(2) + " м/с²";
+            calculateMetrics();
+        }
+
+        function togglePlay() {
+            state.isPlaying = !state.isPlaying;
+            $('text-play').textContent = state.isPlaying ? "Тоқтату" : "Іске қосу";
+            $('icon-play').className = state.isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+        }
+
+        function resetSimulation() {
+            state.time = 0;
+            state.graphData = [];
+            
+            if (state.mode === 'math') {
+                state.theta = (state.ampDeg * Math.PI) / 180;
+                state.omega = 0;
+            } else {
+                state.x = state.ampDeg / 100;
+                state.v = 0;
+            }
+            calculateMetrics();
+        }
+
+        function triggerImpulse() {
+            if (state.mode === 'math') {
+                state.omega += 1.5;
+            } else {
+                state.v += 1.2;
+            }
+        }
+
+        function applyPresetSystem(presetKey) {
+            if (presetKey === 'seconds_earth') {
+                setPendulumType('math');
+                state.L = 0.994;
+                state.g = 9.81;
+                state.ampDeg = 25;
+                state.m = 0.5;
+            } else if (presetKey === 'moon_pendulum') {
+                setPendulumType('math');
+                state.L = 1.0;
+                state.g = 1.62;
+                state.ampDeg = 30;
+            } else if (presetKey === 'jupiter_pendulum') {
+                setPendulumType('math');
+                state.L = 1.0;
+                state.g = 24.79;
+                state.ampDeg = 30;
+            } else if (presetKey === 'soft_spring') {
+                setPendulumType('spring');
+                state.k = 10.0;
+                state.m = 1.0;
+                state.ampDeg = 40;
+            } else if (presetKey === 'stiff_spring') {
+                setPendulumType('spring');
+                state.k = 80.0;
+                state.m = 0.4;
+                state.ampDeg = 20;
+            } else if (presetKey === 'space_spring') {
+                setPendulumType('spring');
+                state.k = 25.0;
+                state.m = 0.5;
+                state.g = 0.0;
+                state.ampDeg = 30;
+            }
+
+            syncControlsFromState();
+            switchTab('sim');
+            resetSimulation();
+        }
+
+        function syncControlsFromState() {
+            $('input-l').value = state.L;
+            $('input-k').value = state.k;
+            $('input-m').value = state.m;
+            $('input-amp').value = state.ampDeg;
+            $('select-g').value = state.g.toString();
+            $('val-g').textContent = state.g.toFixed(2) + " м/с²";
+            updateControls();
+        }
+
+        function calculateMetrics() {
+            let T, f, omega, vmax;
+
+            if (state.mode === 'math') {
+                if (state.g > 0) {
+                    T = 2 * Math.PI * Math.sqrt(state.L / state.g);
+                    f = 1 / T;
+                    omega = Math.sqrt(state.g / state.L);
+                    vmax = omega * state.L * (state.ampDeg * Math.PI / 180);
+                } else {
+                    T = Infinity;
+                    f = 0;
+                    omega = 0;
+                    vmax = 0;
+                }
+            } else {
+                T = 2 * Math.PI * Math.sqrt(state.m / state.k);
+                f = 1 / T;
+                omega = Math.sqrt(state.k / state.m);
+                vmax = omega * (state.ampDeg / 100);
+            }
+
+            $('out-period').textContent = isFinite(T) ? T.toFixed(2) + " с" : "∞";
+            $('out-freq').textContent = isFinite(f) ? f.toFixed(2) + " Гц" : "0.00 Гц";
+            $('out-omega').textContent = omega.toFixed(2) + " рад/с";
+            $('out-vmax').textContent = vmax.toFixed(2) + " м/с";
+        }
+
+        function updatePhysics() {
+            if (!state.isPlaying) return;
+
+            const dt = state.dt;
+
+            if (state.mode === 'math') {
+                const alpha = -(state.g / state.L) * Math.sin(state.theta) - state.damping * state.omega;
+                state.omega += alpha * dt;
+                state.theta += state.omega * dt;
+
+                const h = state.L * (1 - Math.cos(state.theta));
+                const Ep = state.m * state.g * h;
+                const Ek = 0.5 * state.m * Math.pow(state.L * state.omega, 2);
+                const Etot = Ep + Ek;
+
+                updateEnergyUI(Ek, Ep, Etot);
+                recordGraphPoint(state.L * Math.sin(state.theta), state.L * state.omega, alpha * state.L);
+
+            } else {
+                const accel = -(state.k / state.m) * state.x - state.damping * state.v;
+                state.v += accel * dt;
+                state.x += state.v * dt;
+
+                const Ep = 0.5 * state.k * Math.pow(state.x, 2);
+                const Ek = 0.5 * state.m * Math.pow(state.v, 2);
+                const Etot = Ep + Ek;
+
+                updateEnergyUI(Ek, Ep, Etot);
+                recordGraphPoint(state.x, state.v, accel);
+            }
+
+            state.time += dt;
+        }
+
+        function updateEnergyUI(Ek, Ep, Etot) {
+            $('val-etot').textContent = Etot.toFixed(3) + " Ж";
+            $('val-ek').textContent = Ek.toFixed(2) + " Ж";
+            $('val-ep').textContent = Ep.toFixed(2) + " Ж";
+
+            const maxE = Math.max(0.0001, Etot);
+            $('bar-ek').style.width = Math.min(100, Math.max(0, (Ek / maxE) * 100)) + "%";
+            $('bar-ep').style.width = Math.min(100, Math.max(0, (Ep / maxE) * 100)) + "%";
+        }
+
+        function recordGraphPoint(displacement, velocity, acceleration) {
+            state.graphData.push({
+                t: state.time,
+                x: displacement,
+                v: velocity,
+                a: acceleration
+            });
+
+            if (state.graphData.length > 300) {
+                state.graphData.shift();
+            }
+
+            $('graph-val-x').textContent = displacement.toFixed(2) + " м";
+            $('graph-val-v').textContent = velocity.toFixed(2) + " м/с";
+            $('graph-val-a').textContent = acceleration.toFixed(2) + " м/с²";
+        }
+
+        let simCanvas, simCtx;
+
+        function initCanvas() {
+            simCanvas = $('simCanvas');
+            simCtx = simCanvas.getContext('2d');
+            resizeCanvas();
+        }
+
+        function resizeCanvas() {
+            if (!simCanvas) return;
+            const rect = simCanvas.getBoundingClientRect();
+            simCanvas.width = rect.width;
+            simCanvas.height = rect.height;
+        }
+
+        function drawSimulation() {
+            if (!simCanvas || !simCtx) return;
+
+            const W = simCanvas.width;
+            const H = simCanvas.height;
+            const isDark = document.documentElement.classList.contains('dark');
+
+            simCtx.clearRect(0, 0, W, H);
+
+            const anchorX = W / 2;
+            const anchorY = 40;
+
+            simCtx.fillStyle = isDark ? '#475569' : '#cbd5e1';
+            simCtx.fillRect(anchorX - 60, anchorY - 10, 120, 10);
+            
+            simCtx.strokeStyle = isDark ? '#334155' : '#94a3b8';
+            simCtx.lineWidth = 1.5;
+            for (let i = -50; i <= 50; i += 10) {
+                simCtx.beginPath();
+                simCtx.moveTo(anchorX + i, anchorY - 10);
+                simCtx.lineTo(anchorX + i + 8, anchorY - 18);
+                simCtx.stroke();
+            }
+
+            if (state.mode === 'math') {
+                const pxLength = Math.min(H * 0.65, state.L * 110);
+                const bobX = anchorX + pxLength * Math.sin(state.theta);
+                const bobY = anchorY + pxLength * Math.cos(state.theta);
+
+                simCtx.setLineDash([4, 4]);
+                simCtx.strokeStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+                simCtx.beginPath();
+                simCtx.moveTo(anchorX, anchorY);
+                simCtx.lineTo(anchorX, anchorY + pxLength + 20);
+                simCtx.stroke();
+                simCtx.setLineDash([]);
+
+                simCtx.strokeStyle = isDark ? '#e2e8f0' : '#334155';
+                simCtx.lineWidth = 2.5;
+                simCtx.beginPath();
+                simCtx.moveTo(anchorX, anchorY);
+                simCtx.lineTo(bobX, bobY);
+                simCtx.stroke();
+
+                simCtx.strokeStyle = '#6366f1';
+                simCtx.lineWidth = 1.5;
+                simCtx.beginPath();
+                simCtx.arc(anchorX, anchorY, 35, Math.PI / 2, Math.PI / 2 + state.theta, state.theta < 0);
+                simCtx.stroke();
+
+                const radius = Math.max(14, Math.min(32, Math.sqrt(state.m) * 18));
+                
+                const grad = simCtx.createRadialGradient(bobX - 4, bobY - 4, 2, bobX, bobY, radius);
+                grad.addColorStop(0, '#818cf8');
+                grad.addColorStop(1, '#4f46e5');
+
+                simCtx.fillStyle = grad;
+                simCtx.shadowColor = 'rgba(99, 102, 241, 0.4)';
+                simCtx.shadowBlur = 10;
+                simCtx.beginPath();
+                simCtx.arc(bobX, bobY, radius, 0, Math.PI * 2);
+                simCtx.fill();
+                simCtx.shadowBlur = 0;
+
+                simCtx.strokeStyle = '#ffffff';
+                simCtx.lineWidth = 2;
+                simCtx.stroke();
+
+            } else {
+                const eqY = anchorY + 160;
+                const pxDisp = state.x * 120;
+                const bobY = eqY + pxDisp;
+                const bobX = anchorX;
+
+                simCtx.setLineDash([4, 4]);
+                simCtx.strokeStyle = '#10b981';
+                simCtx.lineWidth = 1.5;
+                simCtx.beginPath();
+                simCtx.moveTo(anchorX - 50, eqY);
+                simCtx.lineTo(anchorX + 50, eqY);
+                simCtx.stroke();
+                simCtx.setLineDash([]);
+
+                simCtx.fillStyle = '#10b981';
+                simCtx.font = '10px JetBrains Mono';
+                simCtx.fillText('x = 0 (Тепе-теңдік)', anchorX + 55, eqY + 3);
+
+                const springCoils = 14;
+                const springTop = anchorY;
+                const springBottom = bobY - 25;
+                const springHeight = springBottom - springTop;
+                const coilStep = springHeight / springCoils;
+
+                simCtx.strokeStyle = isDark ? '#cbd5e1' : '#475569';
+                simCtx.lineWidth = 3;
+                simCtx.beginPath();
+                simCtx.moveTo(anchorX, springTop);
+
+                for (let i = 0; i < springCoils; i++) {
+                    const sx = (i % 2 === 0) ? anchorX - 15 : anchorX + 15;
+                    const sy = springTop + (i + 0.5) * coilStep;
+                    simCtx.lineTo(sx, sy);
+                }
+                simCtx.lineTo(anchorX, springBottom);
+                simCtx.stroke();
+
+                const boxW = Math.max(36, Math.min(64, Math.sqrt(state.m) * 32));
+                const boxH = Math.max(30, Math.min(54, Math.sqrt(state.m) * 26));
+
+                simCtx.fillStyle = '#6366f1';
+                simCtx.shadowColor = 'rgba(99, 102, 241, 0.4)';
+                simCtx.shadowBlur = 8;
+                simCtx.beginPath();
+                simCtx.roundRect(bobX - boxW / 2, bobY - boxH / 2, boxW, boxH, 8);
+                simCtx.fill();
+                simCtx.shadowBlur = 0;
+
+                simCtx.strokeStyle = '#ffffff';
+                simCtx.lineWidth = 2;
+                simCtx.stroke();
+
+                simCtx.fillStyle = '#ffffff';
+                simCtx.font = 'bold 11px Inter';
+                simCtx.textAlign = 'center';
+                simCtx.fillText(`${state.m}кг`, bobX, bobY + 4);
+            }
+        }
+
+        let graphCanvas, graphCtx;
+
+        function initGraphCanvas() {
+            graphCanvas = $('graphCanvas');
+            if (graphCanvas) {
+                graphCtx = graphCanvas.getContext('2d');
+                resizeGraphCanvas();
+            }
+        }
+
+        function resizeGraphCanvas() {
+            if (!graphCanvas) return;
+            const rect = graphCanvas.getBoundingClientRect();
+            graphCanvas.width = rect.width;
+            graphCanvas.height = rect.height;
+        }
+
+        function drawGraph() {
+            if (!graphCanvas || !graphCtx) return;
+
+            const W = graphCanvas.width;
+            const H = graphCanvas.height;
+
+            graphCtx.clearRect(0, 0, W, H);
+
+            const padLeft = 40;
+            const padBottom = 30;
+            const padTop = 20;
+            const padRight = 20;
+
+            const gW = W - padLeft - padRight;
+            const gH = H - padTop - padBottom;
+            const midY = padTop + gH / 2;
+
+            graphCtx.strokeStyle = '#475569';
+            graphCtx.lineWidth = 1;
+            graphCtx.beginPath();
+            graphCtx.moveTo(padLeft, padTop);
+            graphCtx.lineTo(padLeft, H - padBottom);
+            graphCtx.lineTo(W - padRight, H - padBottom);
+            graphCtx.stroke();
+
+            graphCtx.strokeStyle = '#334155';
+            graphCtx.setLineDash([2, 2]);
+            graphCtx.beginPath();
+            graphCtx.moveTo(padLeft, midY);
+            graphCtx.lineTo(W - padRight, midY);
+            graphCtx.stroke();
+            graphCtx.setLineDash([]);
+
+            graphCtx.fillStyle = '#94a3b8';
+            graphCtx.font = '10px Inter';
+            graphCtx.fillText('x, v, a', 8, padTop + 10);
+            graphCtx.fillText('уақыт t (с)', W - padRight - 35, H - 10);
+
+            if (state.graphData.length < 2) return;
+
+            plotSeries('#6366f1', pt => pt.x, 1.0, padLeft, gW, midY, gH / 2.2);
+            plotSeries('#10b981', pt => pt.v, 2.5, padLeft, gW, midY, gH / 2.2);
+            plotSeries('#f43f5e', pt => pt.a, 10.0, padLeft, gW, midY, gH / 2.2);
+        }
+
+        function plotSeries(color, selector, scaleMax, padLeft, gW, midY, ampPx) {
+            graphCtx.strokeStyle = color;
+            graphCtx.lineWidth = 2;
+            graphCtx.beginPath();
+
+            const count = state.graphData.length;
+            for (let i = 0; i < count; i++) {
+                const val = selector(state.graphData[i]);
+                const px = padLeft + (i / 300) * gW;
+                const py = midY - (val / scaleMax) * ampPx;
+
+                if (i === 0) graphCtx.moveTo(px, py);
+                else graphCtx.lineTo(px, py);
+            }
+            graphCtx.stroke();
+        }
+
+        function clearGraphHistory() {
+            state.graphData = [];
+            drawGraph();
+        }
+
+        function simLoop() {
+            updatePhysics();
+            drawSimulation();
+            
+            if (!$('section-graph').classList.contains('hidden')) {
+                drawGraph();
+            }
+
+            requestAnimationFrame(simLoop);
+        }
+
+        function checkTask1() {
+            const val = parseFloat($('task1-input').value);
+            const feedback = $('task1-feedback');
+
+            if (isNaN(val)) {
+                showFeedback(feedback, 'warning', '⚠️ Өтініш, сан енгізіңіз.');
+                return;
+            }
+
+            if (val >= 24.0 && val <= 24.8) {
+                showFeedback(feedback, 'success', '🎉 Дұрыс! Айдағы бәсеңдеген маятник 60 минут ішінде тек ~24.4 минут жүріп үлгереді!');
+            } else {
+                showFeedback(feedback, 'error', '❌ Дұрыс емес. Т2 = Т1 · √(g_Жер / g_Ай) = 4.92 с. 3600 секундта сағат 731 тербеліс жасап, циферблат бары-жоғы ~24.4 минутты көрсетеді.');
+            }
+        }
+
+        function checkTask2() {
+            const val = parseFloat($('task2-input').value);
+            const feedback = $('task2-feedback');
+
+            if (isNaN(val)) {
+                showFeedback(feedback, 'warning', '⚠️ Өтініш, сан енгізіңіз.');
+                return;
+            }
+
+            if (Math.abs(val - 1.81) <= 0.03) {
+                showFeedback(feedback, 'success', '🎉 Өте жақсы! Дұрыс! Лифт жоғары үдегенде инерция салдарынан тиімді үдеу g\' = g + a = 12.0 м/с² болады.');
+            } else {
+                showFeedback(feedback, 'error', '❌ Қате. Формула: T = 2π √(L / (g + a)). g\' = 9.81 + 2.19 = 12.0 м/с². T = 1.81 с.');
+            }
+        }
+
+        function checkTask3() {
+            const val = parseFloat($('task3-input').value);
+            const feedback = $('task3-feedback');
+
+            if (isNaN(val)) {
+                showFeedback(feedback, 'warning', '⚠️ Өтініш, сан енгізіңіз.');
+                return;
+            }
+
+            if (Math.abs(val - 0.32) <= 0.02) {
+                showFeedback(feedback, 'success', '🎉 Тамаша! Дұрыс жауап! Меншікті жиілік f₀ ≈ 0.32 Гц. Әскер бұл жиілікте адымдаса, апатты резонанс орын алады!');
+            } else {
+                showFeedback(feedback, 'error', '❌ Қате. Көпірдің меншікті периоды T = 2π √(2.5 / 9.81) = 3.17 с. Жиілік f = 1 / 3.17 ≈ 0.32 Гц.');
+            }
+        }
+
+        function checkTask4() {
+            const val = parseFloat($('task4-input').value);
+            const feedback = $('task4-feedback');
+
+            if (isNaN(val)) {
+                showFeedback(feedback, 'warning', '⚠️ Өтініш, сан енгізіңіз.');
+                return;
+            }
+
+            if (Math.abs(val - 4.44) <= 0.05) {
+                showFeedback(feedback, 'success', '🎉 Жарайсың! Дұрыс! v_max = 2πfA = 6.28 м/с. Ek = Ep болғанда v = v_max / √2 = 4.44 м/с.');
+            } else {
+                showFeedback(feedback, 'error', '❌ Қате. v_max = 2π · 5 · 0.2 = 6.28 м/с. Ek = Ep шартында v = v_max / √2 ≈ 4.44 м/с.');
+            }
+        }
+
+        function checkTask5() {
+            const val = parseInt($('task5-input').value);
+            const feedback = $('task5-feedback');
+
+            if (isNaN(val)) {
+                showFeedback(feedback, 'warning', '⚠️ Өтініш, бүтін сан енгізіңіз.');
+                return;
+            }
+
+            if (val === 1) {
+                showFeedback(feedback, 'success', '🎉 Тамаша логика! Дұрыс! T1 = 2·T2 болғандықтан, ұзын маятник 1 толық тербеліс жасағанда, қысқасы 2 толық тербеліс жасап, қайта беттеседі!');
+            } else {
+                showFeedback(feedback, 'error', '❌ Дұрыс емес. T1 / T2 = √(1 / 0.25) = 2. Олай болса, 1-ші маятник 1 тербеліс жасағанда, 2-шісі 2 тербеліс жасап үлгереді.');
+            }
+        }
+
+        function showFeedback(el, type, msg) {
+            el.classList.remove('hidden', 'bg-emerald-100', 'bg-rose-100', 'bg-amber-100', 'text-emerald-800', 'text-rose-800', 'text-amber-800', 'dark:bg-emerald-950', 'dark:bg-rose-950', 'dark:text-emerald-200', 'dark:text-rose-200');
+            
+            if (type === 'success') {
+                el.classList.add('bg-emerald-100', 'dark:bg-emerald-950', 'text-emerald-800', 'dark:text-emerald-200');
+            } else if (type === 'error') {
+                el.classList.add('bg-rose-100', 'dark:bg-rose-950', 'text-rose-800', 'dark:text-rose-200');
+            } else {
+                el.classList.add('bg-amber-100', 'text-amber-800');
+            }
+            el.textContent = msg;
+        }
+    </script>
+</body>
+</html>
+```eoc
